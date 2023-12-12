@@ -1,6 +1,7 @@
 import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
+document.title = "Grave Digger";
 const canvas = document.createElement("canvas");
 const context = canvas.getContext("2d")!;
 canvas.width = 1280;
