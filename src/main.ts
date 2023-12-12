@@ -10,7 +10,7 @@ const canvasPos = 0;
 context.fillRect(canvasPos, canvasPos, canvas.width, canvas.height);
 app.append(canvas);
 const playerImg = new Image();
-playerImg.src = "./player.png";
+playerImg.src = "player.png";
 const playerSpd = 10;
 const keys = new Map<string, boolean>();
 
