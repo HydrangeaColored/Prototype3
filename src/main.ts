@@ -13,7 +13,7 @@ app.append(canvas);
 const playerImg = new Image();
 playerImg.src = "player.png";
 const playerSpd = 10;
-const keys = new Map<string, boolean>();
+const keysPressed: Set<string> = new Set();
 
 class Player {
   posX: number;
@@ -47,84 +47,39 @@ const currPlayer = new Player();
 currPlayer.addPlayer();
 
 window.addEventListener("keydown", (e) => {
-  keys.set(e.key, true);
+  keysPressed.add(e.key);
   keyActions();
-
-  /*
-  switch (e.key) {
-    case "w": {
-      console.log("w");
-      currPlayer.posY -= playerSpd;
-      if (currPlayer.posY < 0) {
-        currPlayer.posY = 0;
-      }
-      break;
-    }
-    case "a": {
-      console.log("a");
-      currPlayer.posX -= playerSpd;
-      if (currPlayer.posX < 0) {
-        currPlayer.posX = 0;
-      }
-      break;
-    }
-    case "s": {
-      console.log("s");
-      currPlayer.posY += playerSpd;
-      if (currPlayer.posY > 740) {
-        currPlayer.posY = 740;
-      }
-      break;
-    }
-    case "d": {
-      console.log("d");
-      currPlayer.posX += playerSpd;
-      if (currPlayer.posX > 1250) {
-        currPlayer.posX = 1250;
-      }
-      break;
-    }
-    case "e": {
-        console.log("e");
-        currPlayer.isAlive=false;
-        break;
-      }
-    default: {
-      console.log("default");
-    }
-  }
-  redrawCanvas();*/
 });
 
 window.addEventListener("keyup", (e) => {
   console.log("released keys: ", e.key);
-  keys.set(e.key, false);
+  keysPressed.delete(e.key);
   keyActions();
 });
 
 function keyActions() {
   console.log("running");
-  if (keys.get("w")) {
+  if (keysPressed.has("w")) {
     currPlayer.posY -= playerSpd;
     if (currPlayer.posY < 0) {
       currPlayer.posY = 0;
     }
   }
-  if (keys.get("a")) {
+  if (keysPressed.has("a")) {
     console.log("a");
     currPlayer.posX -= playerSpd;
     if (currPlayer.posX < 0) {
       currPlayer.posX = 0;
     }
   }
-  if (keys.get("s")) {
+  if (keysPressed.has("s")) {
     console.log("s");
     currPlayer.posY += playerSpd;
     if (currPlayer.posY > 740) {
       currPlayer.posY = 740;
     }
   }
-  if (keys.get("d")) {
+  if (keysPressed.has("d")) {
     console.log("d");
     currPlayer.posX += playerSpd;
     if (currPlayer.posX > 1250) {
