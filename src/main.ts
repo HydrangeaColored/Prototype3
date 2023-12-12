@@ -12,6 +12,8 @@ context.fillRect(canvasPos, canvasPos, canvas.width, canvas.height);
 app.append(canvas);
 const playerImg = new Image();
 playerImg.src = "player.png";
+const ghostImg = new Image();
+ghostImg.src = "ghost.png";
 const playerSpd = 10;
 const keysPressed: Set<string> = new Set();
 
@@ -25,14 +27,28 @@ class Player {
     this.isAlive = true;
   }
   addPlayer() {
-    playerImg.onload = this.update;
+    playerImg.onload = () => this.update();
   }
   update() {
-    console.log("player y is: ", currPlayer.posY);
-    console.log("player x is: ", currPlayer.posX);
-    context.drawImage(playerImg, currPlayer.posX, currPlayer.posY);
+    context.drawImage(playerImg, this.posX, this.posY);
   }
 }
+
+/*
+class Ghost {
+  posX: number;
+  posY: number;
+  constructor() {
+    this.posX = Math.floor(Math.random() * 1250);
+    this.posY = Math.floor(Math.random() * 740);
+  }
+  addPlayer() {
+    ghostImg.onload = this.update;
+  }
+  update() {
+    context.drawImage(ghostImg, this.posX, this.posY);
+  }
+}*/
 
 function redrawCanvas() {
   if (currPlayer.isAlive) {
@@ -48,18 +64,19 @@ currPlayer.addPlayer();
 
 window.addEventListener("keydown", (e) => {
   keysPressed.add(e.key);
-  keyActions();
+  //keyActions();
 });
 
 window.addEventListener("keyup", (e) => {
-  console.log("released keys: ", e.key);
   keysPressed.delete(e.key);
-  keyActions();
+  //keyActions();
 });
 
+window.requestAnimationFrame(keyActions);
+
 function keyActions() {
-  console.log("running");
   if (keysPressed.has("w")) {
+    console.log("w");
     currPlayer.posY -= playerSpd;
     if (currPlayer.posY < 0) {
       currPlayer.posY = 0;
@@ -87,4 +104,5 @@ function keyActions() {
     }
   }
   redrawCanvas();
+  window.requestAnimationFrame(keyActions);
 }
