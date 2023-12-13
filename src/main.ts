@@ -10,6 +10,8 @@ context.fillStyle = "#FFE5B4";
 const canvasPos = 0;
 context.fillRect(canvasPos, canvasPos, canvas.width, canvas.height);
 app.append(canvas);
+const frameImg = new Image();
+frameImg.src = "frame.png";
 const goldImg = new Image();
 goldImg.src = "gold.png";
 const bottleImg = new Image();
@@ -67,6 +69,7 @@ class Player {
         case 5: // GOLD
           context.drawImage(goldImg, 0, 0);
       }
+      context.drawImage(frameImg, 0, 0);
     }
   }
 }
@@ -230,6 +233,8 @@ class Grave {
       thisPlayer.hasItem = this.item;
       console.log(`Player has item ${this.item}`);
       this.item = 0;
+      const currGhost = new Ghost();
+      allGhosts.push(currGhost);
     }
   }
 }
