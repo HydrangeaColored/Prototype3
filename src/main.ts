@@ -10,14 +10,24 @@ context.fillStyle = "#FFE5B4";
 const canvasPos = 0;
 context.fillRect(canvasPos, canvasPos, canvas.width, canvas.height);
 app.append(canvas);
-const playerImg = new Image();
-playerImg.src = "player.png";
+const goldImg = new Image();
+goldImg.src = "gold.png";
+const bottleImg = new Image();
+bottleImg.src = "bottle.png";
+const knifeImg = new Image();
+knifeImg.src = "knife.png";
+const ringImg = new Image();
+ringImg.src = "ring.png";
+const teddyImg = new Image();
+teddyImg.src = "teddy.png";
 const merchantImg = new Image();
-merchantImg.src = "player.png";
+merchantImg.src = "merchant.png";
 const ghostImg = new Image();
 ghostImg.src = "ghost.png";
 const graveImg = new Image();
 graveImg.src = "grave.png";
+const playerImg = new Image();
+playerImg.src = "player.png";
 const playerSpd = 10;
 const ghostSpd = 5;
 const keysPressed: Set<string> = new Set();
@@ -39,14 +49,36 @@ class Player {
   update() {
     context.drawImage(playerImg, this.posX, this.posY);
   }
+  drawItem() {
+    if (this.hasItem != 0) {
+      switch (this.hasItem) {
+        case 1: // BOTTLE
+          context.drawImage(bottleImg, 0, 0);
+          break;
+        case 2: // KNIFE
+          context.drawImage(knifeImg, 0, 0);
+          break;
+        case 3: // RING
+          context.drawImage(ringImg, 0, 0);
+          break;
+        case 4: // TEDDY
+          context.drawImage(teddyImg, 0, 0);
+          break;
+        case 5: // GOLD
+          context.drawImage(goldImg, 0, 0);
+      }
+    }
+  }
 }
 
 class Merchant {
   posX: number;
   posY: number;
+  item: number;
   constructor() {
     this.posX = 610;
-    this.posY = 600;
+    this.posY = 580;
+    this.item = 0;
   }
   addMerchant() {
     merchantImg.onload = () => this.update();
@@ -62,29 +94,37 @@ class Merchant {
       thisPlayer.posY <= this.posY + 65 &&
       thisPlayer.hasItem != 0
     ) {
+      console.log(`Gave ${thisPlayer.hasItem}`);
+      this.item = thisPlayer.hasItem;
+      thisPlayer.hasItem = 0;
+    }
+  }
+  revealSecret() {
+    if (this.item != 0) {
       let text;
-      // FLAVOR TEXT IS THE TEXT BELOW FOR EACH ITEM!
-      switch (thisPlayer.hasItem) {
-        case 1:
-          text = "Gave item 1";
+      switch (this.item) {
+        case 1: // BOTTLE
+          text =
+            "Ah, a pristine single malt scotch! Michael's favorite. He always seemed to have a bottle in his hand. Say, did you find the knife that stabbed him?";
           break;
-        case 2:
-          text = "gave item 2";
+        case 2: // KNIFE
+          text =
+            "Seems you found Luke's grave. He disappeared after his sister's death. Don't remember him well, but he never drank not even at his sister's funeral...";
           break;
-        case 3:
-          text = "gave item 3";
+        case 3: // RING
+          text =
+            "Kat's ring, a faded symbol of Kat's marriage. An unfortunate death due to complications during childbirth. Michael never seemed to quite recover...";
           break;
-        case 4:
-          text = "gave item 4";
+        case 4: // TEDDY
+          text =
+            "Ah, Susan loved this bear, a present from her brother and a memento of her late mom. Vanished at a young age, poor girl. It smells slightly like vanilla and booze??";
+          break;
+        case 5: // GOLD
+          text = "Ooh shiny! A tidy sum of 100 coins.";
       }
       context.fillStyle = "black";
-      context.font = "64px bold Arial";
-      context.fillText(
-        `${text}`,
-        (canvas.width - 300) / 2,
-        (canvas.height - 60) / 2,
-      );
-      thisPlayer.hasItem = 0;
+      context.font = "20px bold Arial";
+      context.fillText(`${text}`, 20, canvas.height - 50, 1200);
     }
   }
 }
@@ -166,9 +206,11 @@ class Ghost {
 class Grave {
   posX: number;
   posY: number;
-  constructor(x: number, y: number) {
+  item: number;
+  constructor(x: number, y: number, item: number) {
     this.posX = x;
     this.posY = y;
+    this.item = item;
   }
   addGrave() {
     graveImg.onload = this.update;
@@ -182,9 +224,12 @@ class Grave {
       thisPlayer.posX <= this.posX + 170 &&
       thisPlayer.posY >= this.posY + 50 &&
       thisPlayer.posY <= this.posY + 120 &&
-      thisPlayer.hasItem == 0
+      thisPlayer.hasItem == 0 &&
+      this.item != 0
     ) {
-      thisPlayer.hasItem = Math.floor(Math.random() * 4) + 1;
+      thisPlayer.hasItem = this.item;
+      console.log(`Player has item ${this.item}`);
+      this.item = 0;
     }
   }
 }
@@ -199,8 +244,10 @@ function redrawCanvas() {
       currGrave.playerCheck(currPlayer);
     });
     currPlayer.update();
+    currPlayer.drawItem();
     currMerchant.update();
     currMerchant.playerCheck(currPlayer);
+    currMerchant.revealSecret();
     allGhosts.forEach((currGhost) => {
       currGhost.update();
       currGhost.playerCheck(currPlayer);
@@ -222,18 +269,43 @@ allGhosts.forEach((currGhost) => {
 });
 
 const GravePadding = 100;
-const allGraves: Grave[] = [];
-for (let i = 0; i < 4; i++) {
-  const currGrave = new Grave(GravePadding + i * 270, 150);
-  allGraves.push(currGrave);
-}
-allGraves.forEach((currGrave) => {
-  currGrave.addGrave();
-});
+const itemGraves = new Array();
 
 for (let i = 0; i < 4; i++) {
-  const currGrave = new Grave(GravePadding + i * 270, 300);
-  allGraves.push(currGrave);
+  const grave = Math.floor(Math.random() * 8) + 1;
+  if (itemGraves.indexOf(grave) != -1) {
+    i = i - 1;
+  } else {
+    itemGraves.push(grave);
+  }
+}
+
+const allGraves: Grave[] = [];
+for (let i = 0; i < 4; i++) {
+  if (itemGraves.indexOf(i + 1) == -1) {
+    const currGrave = new Grave(GravePadding + i * 270, 150, 5);
+    allGraves.push(currGrave);
+  } else {
+    const currGrave = new Grave(
+      GravePadding + i * 270,
+      150,
+      itemGraves.indexOf(i + 1) + 1,
+    );
+    allGraves.push(currGrave);
+  }
+}
+for (let i = 0; i < 4; i++) {
+  if (itemGraves.indexOf(i + 5) == -1) {
+    const currGrave = new Grave(GravePadding + i * 270, 300, 5);
+    allGraves.push(currGrave);
+  } else {
+    const currGrave = new Grave(
+      GravePadding + i * 270,
+      300,
+      itemGraves.indexOf(i + 5) + 1,
+    );
+    allGraves.push(currGrave);
+  }
 }
 allGraves.forEach((currGrave) => {
   currGrave.addGrave();
